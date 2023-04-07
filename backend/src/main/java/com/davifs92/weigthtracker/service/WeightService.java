@@ -3,6 +3,10 @@ package com.davifs92.weigthtracker.service;
 import com.davifs92.weigthtracker.dto.WeightDto;
 import com.davifs92.weigthtracker.entities.Weight;
 import com.davifs92.weigthtracker.repository.WeightRepository;
+import com.davifs92.weigthtracker.service.exceptions.DataBaseException;
+import com.davifs92.weigthtracker.service.exceptions.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +24,21 @@ public class WeightService {
     @Transactional(readOnly = true)
     public Page<WeightDto> findAll(PageRequest pageRequest){
         Page<Weight> list = weightRepository.findAll(pageRequest);
-        return list.map(weight -> convertWeightEntityToDto(weight));
+        return list.map(WeightService::convertWeightEntityToDto);
 
     }
     @Transactional(readOnly = true)
     public WeightDto findById(Long id){
         Optional<Weight> opt = weightRepository.findById(id);
-        Weight entity = opt.orElseThrow(() -> new RuntimeException("Not found"));
+        Weight entity = opt.orElseThrow(() -> new ResourceNotFoundException("Weight not found"));
         return convertWeightEntityToDto(entity);
 
     }
     @Transactional
     public WeightDto update(WeightDto dto){
-        Weight entity = weightRepository.findById(dto.getId()).get();
+        Weight entity = weightRepository.findById(dto.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Weight not found")
+        );
         entity.setWeight(dto.getWeight());
         return convertWeightEntityToDto(weightRepository.save(entity));
 
@@ -45,8 +51,13 @@ public class WeightService {
 
     @Transactional
     public void delete(Long id){
-       Optional<Weight> weight = weightRepository.findById(id);
-       weightRepository.delete(weight.get());
+        try {
+            weightRepository.findById(id);
+        } catch (EmptyResultDataAccessException e){
+            throw new ResourceNotFoundException("id not found");
+        } catch (DataIntegrityViolationException e){
+            throw new DataBaseException("Integrity violation");
+        }
     }
 
     public static Weight convertWeightDtoToEntity(WeightDto dto){

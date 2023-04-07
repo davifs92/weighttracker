@@ -1,38 +1,64 @@
 package com.davifs92.weigthtracker.dto;
 
 import com.davifs92.weigthtracker.entities.Weight;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor
 @Getter
-public class UserDto {
+public class UserDto implements Serializable {
     private Long id;
+    @NotBlank(message = "Name should not be empty")
     private String name;
+    private String password;
+    private String username;
+    @Email(message = "Email should be valid")
     private String email;
+    @Min(value = 16, message = "Age should not be less than 16")
+    @Max(value = 99, message = "Age should not be greater than 99")
     private Integer age;
+    @NotBlank(message = "Height should not be empty")
     private float height;
+    @NotNull(message = "Goal should not be empty")
     private float goal;
 
     private Instant createdDate;
     private List<WeightDto> weights = new ArrayList<>();
 
 
-    public UserDto(Long id, String name, String email, Integer age, float height, float goal, Instant createdDate, List<WeightDto> weights) {
+    public UserDto(Long id, String name, String password, String username, String email, Integer age, float height, float goal, Instant createdDate, List<WeightDto> weights) {
         this.id = id;
         this.name = name;
+        this.password = password;
+        this.username = username;
         this.email = email;
         this.age = age;
         this.height = height;
         this.goal = goal;
         this.createdDate = createdDate;
         this.weights = weights;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setId(Long id) {

@@ -1,14 +1,20 @@
 package com.davifs92.weigthtracker.service;
 
 
+import com.davifs92.weigthtracker.WeigthtrackerApplication;
 import com.davifs92.weigthtracker.dto.UserDto;
 import com.davifs92.weigthtracker.dto.WeightDto;
 import com.davifs92.weigthtracker.entities.User;
 import com.davifs92.weigthtracker.entities.Weight;
 import com.davifs92.weigthtracker.repository.UserRepository;
+import com.davifs92.weigthtracker.service.exceptions.DataBaseException;
+import com.davifs92.weigthtracker.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,37 +31,46 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDto> findAll(PageRequest pageRequest){
         Page<User> list = userRepository.findAll(pageRequest);
-        return list.map(weight -> convertEntityToDto(weight));
+        return list.map(this::convertEntityToDto);
 
     }
     @Transactional(readOnly = true)
     public UserDto findById(Long id){
         Optional<User> opt = userRepository.findById(id);
-        User entity = opt.orElseThrow(() -> new RuntimeException("Not found"));
+        User entity = opt.orElseThrow(() -> new ResourceNotFoundException("Not found"));
         return convertEntityToDto(entity);
 
     }
     @Transactional
     public UserDto update(UserDto dto){
-        User entity = userRepository.findById(dto.getId()).get();
+        User entity = userRepository.findById(dto.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("User was not found")
+        );
         return convertEntityToDto(userRepository.save(entity));
 
     }
     @Transactional
-    public UserDto save(UserDto dto){
+    public UserDto create(UserDto dto){
         User weight = convertDtoToEntity(dto);
+        weight.setPassword(WeigthtrackerApplication.bCryptPasswordEncoder().encode(dto.getPassword()));
         return convertEntityToDto(userRepository.save(weight));
     }
 
     @Transactional
     public void delete(Long id){
-        Optional<User> weight = userRepository.findById(id);
-        userRepository.delete(weight.get());
+        try {
+            userRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e){
+            throw new ResourceNotFoundException("Id not found");
+        } catch (DataIntegrityViolationException e){
+            throw new DataBaseException("Integrity violation");
+        }
     }
 
     private User convertDtoToEntity(UserDto dto){
         User entity = new User();
         entity.setAge(dto.getAge());
+        entity.setUsername(dto.getUsername());
         entity.setName(dto.getName());
         entity.setHeight(dto.getHeight());
         entity.setGoal(dto.getGoal());
