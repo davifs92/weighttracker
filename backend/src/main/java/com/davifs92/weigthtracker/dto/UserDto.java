@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class UserDto implements Serializable {
-    private Long id;
+    private String id;
     @NotBlank(message = "Name should not be empty")
     private String name;
     private String password;
@@ -32,7 +32,7 @@ public class UserDto implements Serializable {
     private List<WeightDto> weights = new ArrayList<>();
 
 
-    public UserDto(Long id, String name, String password, String username, String email, Integer age, float height, float goal, Instant createdDate, List<WeightDto> weights) {
+    public UserDto(String id, String name, String password, String username, String email, Integer age, float height, float goal, Instant createdDate, List<WeightDto> weights) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -61,7 +61,7 @@ public class UserDto implements Serializable {
         this.username = username;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -4,6 +4,7 @@ import com.davifs92.weigthtracker.entities.User;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 
 import java.io.Serializable;

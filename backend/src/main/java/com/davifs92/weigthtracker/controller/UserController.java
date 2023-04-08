@@ -31,7 +31,7 @@ public class UserController {
         return ResponseEntity.ok().body(list);
     }
     @GetMapping
-    public ResponseEntity<UserDto> findById(@PathVariable Long id){
+    public ResponseEntity<UserDto> findById(@PathVariable String id){
         UserDto dto = userService.findById(id);
         return ResponseEntity.ok().body(dto);
     }
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @DeleteMapping
-    public ResponseEntity<UserDto> delete(@PathVariable Long id){
+    public ResponseEntity<UserDto> delete(@PathVariable String id){
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -35,15 +36,23 @@ public class UserService {
 
     }
     @Transactional(readOnly = true)
-    public UserDto findById(Long id){
-        Optional<User> opt = userRepository.findById(id);
+    public UserDto findById(String id){
+        Optional<User> opt = userRepository.findById(UUID.fromString(id));
+        User entity = opt.orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        return convertEntityToDto(entity);
+
+    }
+
+    @Transactional(readOnly = true)
+    public UserDto findByUsername(String username){
+        Optional<User> opt = userRepository.findByUsername(username);
         User entity = opt.orElseThrow(() -> new ResourceNotFoundException("Not found"));
         return convertEntityToDto(entity);
 
     }
     @Transactional
     public UserDto update(UserDto dto){
-        User entity = userRepository.findById(dto.getId()).orElseThrow(
+        User entity = userRepository.findById(UUID.fromString(dto.getId())).orElseThrow(
                 () -> new ResourceNotFoundException("User was not found")
         );
         return convertEntityToDto(userRepository.save(entity));
@@ -57,9 +66,9 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(String id){
         try {
-            userRepository.deleteById(id);
+            userRepository.deleteById(UUID.fromString(id));
         } catch (EmptyResultDataAccessException e){
             throw new ResourceNotFoundException("Id not found");
         } catch (DataIntegrityViolationException e){
@@ -80,7 +89,7 @@ public class UserService {
     }
     private UserDto convertEntityToDto(User entity){
         UserDto dto = new UserDto();
-        dto.setId(entity.getId());
+        dto.setId(entity.getId().toString());
         dto.setAge(entity.getAge());
         dto.setEmail(entity.getEmail());
         dto.setGoal(entity.getGoal());
