@@ -1,6 +1,7 @@
 package com.davifs92.weigthtracker.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,8 +20,8 @@ import java.util.*;
 @Table(name = "tb_user")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -39,9 +40,9 @@ public class User implements UserDetails {
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
-    @OneToMany
-    private Set<Weight> weightSet = new HashSet<>();
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Weight> weights = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -66,5 +67,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public List<Weight> getWeights() {
+        return weights;
+    }
+
+    public void setWeights(List<Weight> weights) {
+        this.weights = weights;
     }
 }

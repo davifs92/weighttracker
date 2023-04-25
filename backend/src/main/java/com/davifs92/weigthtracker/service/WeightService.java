@@ -1,7 +1,10 @@
 package com.davifs92.weigthtracker.service;
 
+import com.davifs92.weigthtracker.dto.UserDto;
 import com.davifs92.weigthtracker.dto.WeightDto;
+import com.davifs92.weigthtracker.entities.User;
 import com.davifs92.weigthtracker.entities.Weight;
+import com.davifs92.weigthtracker.repository.UserRepository;
 import com.davifs92.weigthtracker.repository.WeightRepository;
 import com.davifs92.weigthtracker.service.exceptions.DataBaseException;
 import com.davifs92.weigthtracker.service.exceptions.ResourceNotFoundException;
@@ -19,6 +22,11 @@ import java.util.Optional;
 public class WeightService {
     @Autowired
     private WeightRepository weightRepository;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Transactional(readOnly = true)
@@ -35,8 +43,8 @@ public class WeightService {
 
     }
     @Transactional
-    public WeightDto update(WeightDto dto){
-        Weight entity = weightRepository.findById(dto.getId()).orElseThrow(
+    public WeightDto update(String id, WeightDto dto){
+        Weight entity = weightRepository.findById(Long. valueOf(id)).orElseThrow(
                 () -> new ResourceNotFoundException("Weight not found")
         );
         entity.setWeight(dto.getWeight());
@@ -44,7 +52,9 @@ public class WeightService {
 
     }
     @Transactional
-    public WeightDto save(WeightDto dto){
+    public WeightDto save(WeightDto dto, String username){
+        User user =userService.findByUsernameAndReturnEntity(username);
+        dto.setUser(user);
         Weight weight = convertWeightDtoToEntity(dto);
         return convertWeightEntityToDto(weightRepository.save(weight));
     }
@@ -71,6 +81,7 @@ public class WeightService {
         dto.setId(entity.getId());
         dto.setWeight(entity.getWeight());
         dto.setUser(entity.getUser());
+        dto.setDate(entity.getCreatedAt());
         return dto;
     }
 }

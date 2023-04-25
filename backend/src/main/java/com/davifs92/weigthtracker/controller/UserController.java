@@ -19,7 +19,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
+    @GetMapping
     public ResponseEntity<Page<UserDto>> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                    @RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
                                                    @RequestParam(value = "orderBy", defaultValue = "name") String orderBy,
@@ -30,27 +30,19 @@ public class UserController {
 
         return ResponseEntity.ok().body(list);
     }
-    @GetMapping
+    @GetMapping(value = "/{id}")
     public ResponseEntity<UserDto> findById(@PathVariable String id){
         UserDto dto = userService.findById(id);
         return ResponseEntity.ok().body(dto);
     }
 
-    @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto dto){
-        UserDto saved = userService.create(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("{id}").buildAndExpand(dto.getId()).toUri();
-        return ResponseEntity.created(uri).body(saved);
-
-    }
-
-    @PutMapping
-    public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto dto){
-        UserDto updated = userService.update(dto);
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDto> update(@PathVariable String id, @Valid @RequestBody UserDto dto){
+        UserDto updated = userService.update(id, dto);
         return ResponseEntity.ok().body(updated);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<UserDto> delete(@PathVariable String id){
         userService.delete(id);
         return ResponseEntity.noContent().build();

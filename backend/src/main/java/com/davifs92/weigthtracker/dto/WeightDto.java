@@ -9,7 +9,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 @NoArgsConstructor
 @Getter
@@ -24,10 +23,10 @@ public class WeightDto implements Serializable {
     @NotBlank(message = "User cannot be blank")
     private User user;
 
-    public WeightDto(Long id, Integer weight, Set<User> userSet) {
+    public WeightDto(Long id, Integer weight, Instant date, User user) {
         this.id = id;
         this.weight = weight;
-        this.date = Instant.now();
+        this.date = date;
         this.user = user;
     }
 
@@ -43,7 +42,7 @@ public class WeightDto implements Serializable {
         this.user = user;
     }
 
-    public void setDate(){
-        this.date = Instant.now();
+    public void setDate(Instant date){
+        this.date = date;
     }
 }

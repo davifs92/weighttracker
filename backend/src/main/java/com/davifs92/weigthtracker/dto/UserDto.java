@@ -16,7 +16,6 @@ public class UserDto implements Serializable {
     private String id;
     @NotBlank(message = "Name should not be empty")
     private String name;
-    private String password;
     private String username;
     @Email(message = "Email should be valid")
     private String email;
@@ -35,7 +34,6 @@ public class UserDto implements Serializable {
     public UserDto(String id, String name, String password, String username, String email, Integer age, float height, float goal, Instant createdDate, List<WeightDto> weights) {
         this.id = id;
         this.name = name;
-        this.password = password;
         this.username = username;
         this.email = email;
         this.age = age;
@@ -43,14 +41,6 @@ public class UserDto implements Serializable {
         this.goal = goal;
         this.createdDate = createdDate;
         this.weights = weights;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getUsername() {
